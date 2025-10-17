@@ -77,3 +77,25 @@ class Room(pydantic.BaseModel):
 
     def __hash__(self):
         return self.coordinates.__hash__()
+
+
+class Maze(pydantic.BaseModel):
+    rooms: dict[Coordinates, Room] = pydantic.Field(
+        description="The rooms of the maze, indexed by their coordinates.",
+        default=dict(),
+    )
+    limits: Coordinates = pydantic.Field(
+        description="The size of the maze in each direction, specified as the coordinates of the extreme corner.",
+        default=Coordinates(coordinates=(3, 4)),
+    )
+
+    def _in_bounds(
+        self,
+        coordinates: Coordinates,
+    ) -> bool:
+        return all(
+            coordinate >= 0 and coordinate < limit
+            for coordinate, limit in zip(
+                coordinates.coordinates, self.limits.coordinates
+            )
+        )

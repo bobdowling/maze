@@ -86,5 +86,12 @@ class TestRoom(unittest.TestCase):
         self.assertEqual(len(room.contents), 1)
 
 
+class TestMaze(unittest.TestCase):
+    def testCreationDefault(self) -> None:
+        m = maze.Maze()
+        self.assertEqual(len(m.rooms), 0)
+        self.assertEqual(m.limits.coordinates, (3, 4))
+
+
 if __name__ == "__main__":
     unittest.main()
