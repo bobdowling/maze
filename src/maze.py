@@ -57,6 +57,9 @@ class Coordinates(pydantic.BaseModel):
         xyz = tuple(a + b for a, b in zip(self.coordinates, offset.coordinates))
         return Coordinates(coordinates=xyz)
 
+    def __hash__(self):
+        return self.coordinates.__hash__()
+
 
 class Room(pydantic.BaseModel):
     """A space in the maze.
@@ -99,3 +102,17 @@ class Maze(pydantic.BaseModel):
                 coordinates.coordinates, self.limits.coordinates
             )
         )
+
+    def add_room(
+        self,
+        room: Room,
+    ) -> None:
+        if not self._in_bounds(room.coordinates):
+            raise ValueError(
+                f"Make.add_room: Coordinates of room not in bounds: {room.coordinates=}: {self.limits=}"
+            )
+        if room.coordinates in self.rooms:
+            raise ValueError(
+                f"Make.add_room: Room already in maze: {room.coordinates=}"
+            )
+        self.rooms[room.coordinates] = room

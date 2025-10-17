@@ -92,6 +92,30 @@ class TestMaze(unittest.TestCase):
         self.assertEqual(len(m.rooms), 0)
         self.assertEqual(m.limits.coordinates, (3, 4))
 
+    def testAddRoom1(self) -> None:
+        m = maze.Maze()
+        c = maze.Coordinates(coordinates=(1, 2))
+        r = maze.Room(coordinates=c)
+        self.assertEqual(len(m.rooms), 0)
+        m.add_room(r)
+        self.assertEqual(len(m.rooms), 1)
+
+    def testAddRoom2(self) -> None:
+        m = maze.Maze()
+        c = maze.Coordinates(coordinates=(10, 20))
+        r = maze.Room(coordinates=c)
+        with self.assertRaises(ValueError):
+            m.add_room(r)
+
+    def testAddRoom3(self) -> None:
+        m = maze.Maze()
+        c = maze.Coordinates(coordinates=(1, 2))
+        r1 = maze.Room(coordinates=c)
+        r2 = maze.Room(coordinates=c)
+        m.add_room(r1)
+        with self.assertRaises(ValueError):
+            m.add_room(r2)
+
 
 if __name__ == "__main__":
     unittest.main()
