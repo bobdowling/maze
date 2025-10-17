@@ -1,4 +1,5 @@
 import pydantic
+import uuid
 
 
 class Item(pydantic.BaseModel):
@@ -9,6 +10,13 @@ class Item(pydantic.BaseModel):
     name: str = pydantic.Field(
         description="The name of the item as appearing in inventory lists.",
     )
+    ident: uuid.UUID = pydantic.Field(
+        description="UUID to keep things unique and hashable. (Not intended for direct user access.)",
+        default_factory=uuid.uuid4,
+    )
+
+    def __hash__(self):
+        return self.ident.__hash__()
 
 
 class Direction(pydantic.BaseModel):
@@ -48,6 +56,24 @@ class Coordinates(pydantic.BaseModel):
             )
         xyz = tuple(a + b for a, b in zip(self.coordinates, offset.coordinates))
         return Coordinates(coordinates=xyz)
+
+
+class Room(pydantic.BaseModel):
+    """A space in the maze.
+    It will have routes to adjacent rooms and possibly contain items.
+    """
+
+    coordinates: Coordinates = pydantic.Field(
+        description="The location of the room in the maze.",
+    )
+    doors: set[Direction] = pydantic.Field(
+        description="A set of the directions in which there is a door.",
+        default=set(),
+    )
+    contents: set[Item] = pydantic.Field(
+        description="A set of the items in the room.",
+        default=set(),
+    )
 
     def __hash__(self):
         return self.coordinates.__hash__()

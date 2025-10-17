@@ -67,5 +67,24 @@ class TestCoordinates(unittest.TestCase):
         self.assertEqual(c2.coordinates, xy2)
 
 
+class TestRoom(unittest.TestCase):
+    def testCreationDefault(self) -> None:
+        xy = (1, 0)
+        c = maze.Coordinates(coordinates=xy)
+        room = maze.Room(coordinates=c)
+        self.assertEqual(room.coordinates, c)
+        self.assertEqual(len(room.doors), 0)
+        self.assertEqual(len(room.contents), 0)
+
+    def testCreation1(self) -> None:
+        xy = (1, 0)
+        c = maze.Coordinates(coordinates=xy)
+        s = maze.Item(name="Broadsword")
+        room = maze.Room(coordinates=c, contents={s})
+        self.assertEqual(room.coordinates, c)
+        self.assertEqual(len(room.doors), 0)
+        self.assertEqual(len(room.contents), 1)
+
+
 if __name__ == "__main__":
     unittest.main()
