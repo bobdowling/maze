@@ -28,3 +28,26 @@ class Direction(pydantic.BaseModel):
 
     def __hash__(self):
         return self.coordinates.__hash__()
+
+
+class Coordinates(pydantic.BaseModel):
+    """The location of a room in the maze."""
+
+    coordinates: tuple[int, ...] = pydantic.Field(
+        description="The values of the coordinates of the room.",
+    )
+
+    def __add__(
+        self,
+        offset: Direction,
+    ) -> "Coordinates":
+        """Given an offset from the current room, determine the coordinates of the target room."""
+        if len(self.coordinates) != len(offset.coordinates):
+            raise ValueError(
+                f"Coordinates.__add__: Dimension mismatch: {len(self.coordinates)=}: {len(offset.coordinates)=}",
+            )
+        xyz = tuple(a + b for a, b in zip(self.coordinates, offset.coordinates))
+        return Coordinates(coordinates=xyz)
+
+    def __hash__(self):
+        return self.coordinates.__hash__()

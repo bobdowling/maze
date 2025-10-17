@@ -51,5 +51,21 @@ class TestDirection(unittest.TestCase):
         self.assertNotEqual(hash(direction1), hash(direction2))
 
 
+class TestCoordinates(unittest.TestCase):
+    def testCreation(self) -> None:
+        xy = (1, 0)
+        c = maze.Coordinates(coordinates=xy)
+        self.assertEqual(c.coordinates, xy)
+
+    def testAdd(self) -> None:
+        xy1 = (1, 0)
+        delta = (0, 1)
+        xy2 = (1, 1)
+        c1 = maze.Coordinates(coordinates=xy1)
+        d = maze.Direction(coordinates=delta)
+        c2 = c1 + d
+        self.assertEqual(c2.coordinates, xy2)
+
+
 if __name__ == "__main__":
     unittest.main()
