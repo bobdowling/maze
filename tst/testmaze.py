@@ -50,6 +50,11 @@ class TestDirection(unittest.TestCase):
         direction2 = -direction1
         self.assertNotEqual(hash(direction1), hash(direction2))
 
+    def testAll(self) -> None:
+        target_vectors = [(-1,0), (1,0), (0,-1), (0,1)]
+        created_vectors = [d.coordinates for d in maze.Direction.all(2)]
+        self.assertEqual(target_vectors, created_vectors)
+
 
 class TestCoordinates(unittest.TestCase):
     def testCreation(self) -> None:

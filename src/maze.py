@@ -37,6 +37,24 @@ class Direction(pydantic.BaseModel):
     def __hash__(self):
         return self.coordinates.__hash__()
 
+    @classmethod
+    def all(
+        cls,
+        ND: pydantic.PositiveInt,
+    ) -> list["Direction"]:
+        """Give a list of all possible directions (ignoring walls, etc.)
+        You may want to override this class method for funky topologies.
+        These directions come in a predictable order. It is up to the caller
+        to shuffle them if randomness is required.
+        """
+        all_directions = []
+        for index in range(ND):
+            for offset in [-1, 1]:
+                vector = [0]*ND
+                vector[index] = offset
+                direction = cls(coordinates=tuple(vector))
+                all_directions.append(direction)
+        return all_directions
 
 class Coordinates(pydantic.BaseModel):
     """The location of a room in the maze."""
