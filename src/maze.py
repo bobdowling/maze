@@ -1,4 +1,6 @@
+import logging
 import pydantic
+import random
 import uuid
 
 
@@ -50,11 +52,12 @@ class Direction(pydantic.BaseModel):
         all_directions = []
         for index in range(ND):
             for offset in [-1, 1]:
-                vector = [0]*ND
+                vector = [0] * ND
                 vector[index] = offset
                 direction = cls(coordinates=tuple(vector))
                 all_directions.append(direction)
         return all_directions
+
 
 class Coordinates(pydantic.BaseModel):
     """The location of a room in the maze."""
@@ -77,6 +80,16 @@ class Coordinates(pydantic.BaseModel):
 
     def __hash__(self):
         return self.coordinates.__hash__()
+
+    def __eq__(
+        self,
+        other,
+    ) -> bool:
+        if not isinstance(other, Coordinates):
+            raise ValueError(
+                f"Coordinates.__eq__: Can only compare Coordinates with Coordinates: {other}"
+            )
+        return self.coordinates == other.coordinates
 
 
 class Room(pydantic.BaseModel):
@@ -114,6 +127,7 @@ class Maze(pydantic.BaseModel):
         self,
         coordinates: Coordinates,
     ) -> bool:
+        # logging.debug(f"Make._in_bounds(): ENTRY: {coordinates}")
         return all(
             coordinate >= 0 and coordinate < limit
             for coordinate, limit in zip(
@@ -125,6 +139,7 @@ class Maze(pydantic.BaseModel):
         self,
         room: Room,
     ) -> None:
+        logging.debug(f"Make.add_room(): ENTRY: {room.coordinates}")
         if not self._in_bounds(room.coordinates):
             raise ValueError(
                 f"Make.add_room: Coordinates of room not in bounds: {room.coordinates=}: {self.limits=}"
@@ -134,3 +149,54 @@ class Maze(pydantic.BaseModel):
                 f"Make.add_room: Room already in maze: {room.coordinates=}"
             )
         self.rooms[room.coordinates] = room
+        logging.debug(f"Make.add_room(): EXIT: {room.coordinates}")
+
+    def create(
+        self,
+        rnd: random.Random,
+    ) -> None:
+        logging.debug(f"Maze.create(): ENTRY")
+        ND = len(self.limits.coordinates)
+        logging.debug(f"Maze.create(): {ND=}")
+        all_directions = Direction.all(ND)
+        logging.debug(f"Maze.create(): {all_directions=}")
+        location = Coordinates(coordinates=(0,) * ND)
+        room_zero = Room(coordinates=location)
+        self.add_room(room_zero)
+        stack = [room_zero]
+        logging.debug(f"Maze.create(): Entering stack loop")
+        while stack:
+            room = stack.pop()
+            logging.debug(f"Maze.create(): Stack loop")
+            while True:
+                location = room.coordinates
+                logging.debug(f"Maze.create(): Depth loop: {location}")
+                rnd.shuffle(all_directions)
+                room_created = False
+                for direction in all_directions:
+                    logging.debug(f"Maze.create(): Direction loop: {direction=}")
+                    new_location = location + direction
+                    logging.debug(f"Maze.create(): {new_location=}")
+                    if not self._in_bounds(new_location):
+                        logging.debug(f"Maze.create(): Out of bounds: {new_location}")
+                        continue  # next direction
+                    if new_location in self.rooms:
+                        logging.debug(
+                            f"Maze.create(): New location already in self.rooms: {new_location}"
+                        )
+                        continue  # next direction
+                    logging.debug(
+                        f"Maze.create(): Creating room for new location: {new_location}"
+                    )
+                    new_room = Room(coordinates=new_location)
+                    room.doors.add(direction)
+                    new_room.doors.add(-direction)
+                    self.add_room(new_room)
+                    stack.append(new_room)
+                    room_created = True
+                    room = new_room
+                    break
+
+                # None of the directions worked - pop from the stack
+                if not room_created:
+                    break  # break from the depth loop, return to the stack loop

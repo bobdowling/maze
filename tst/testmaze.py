@@ -1,5 +1,6 @@
 from pathlib import Path
 import pydantic
+import random
 import sys
 import unittest
 
@@ -51,7 +52,7 @@ class TestDirection(unittest.TestCase):
         self.assertNotEqual(hash(direction1), hash(direction2))
 
     def testAll(self) -> None:
-        target_vectors = [(-1,0), (1,0), (0,-1), (0,1)]
+        target_vectors = [(-1, 0), (1, 0), (0, -1), (0, 1)]
         created_vectors = [d.coordinates for d in maze.Direction.all(2)]
         self.assertEqual(target_vectors, created_vectors)
 
@@ -114,12 +115,24 @@ class TestMaze(unittest.TestCase):
 
     def testAddRoom3(self) -> None:
         m = maze.Maze()
-        c = maze.Coordinates(coordinates=(1, 2))
-        r1 = maze.Room(coordinates=c)
-        r2 = maze.Room(coordinates=c)
+        c1 = maze.Coordinates(coordinates=(1, 2))
+        c2 = maze.Coordinates(coordinates=(1, 2))
+        r1 = maze.Room(coordinates=c1)
+        r2 = maze.Room(coordinates=c2)
+        self.assertNotEqual(id(c1), id(c2))
+        self.assertNotEqual(id(r1), id(r2))
         m.add_room(r1)
         with self.assertRaises(ValueError):
             m.add_room(r2)
+
+    def testCreate(self) -> None:
+        M = 3
+        N = 4
+        limits = maze.Coordinates(coordinates=(M, N))
+        m = maze.Maze(limits=limits)
+        r = random.Random(x=0)
+        m.create(r)
+        self.assertEqual(len(m.rooms), M * N)
 
 
 if __name__ == "__main__":
