@@ -8,8 +8,7 @@ class SimpleMaze2D(maze.Maze):
         M: int,
         N: int,
     ) -> None:
-        """Create a M×N 2-D maze.
-        """
+        """Create a M×N 2-D maze."""
         super().__init__(
-            limits = maze.Coordinates(coordinates=(M,N)),
+            limits=maze.Coordinates(coordinates=(M, N)),
         )

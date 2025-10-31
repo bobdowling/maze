@@ -15,11 +15,9 @@ import simple2d  # type: ignore
 
 class TestSimple2D(unittest.TestCase):
     def testCreation(self) -> None:
-        M,N = 5,6
-        thing = simple2d.SimpleMaze2D(M,N)
-        self.assertEqual((M,N), thing.limits.coordinates)
-        
-
+        M, N = 5, 6
+        thing = simple2d.SimpleMaze2D(M, N)
+        self.assertEqual((M, N), thing.limits.coordinates)
 
 
 if __name__ == "__main__":
